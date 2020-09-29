@@ -1,5 +1,5 @@
-import Chime from './chime';
+import Chimes from './chimes';
 import { AuthedConnection, ServerConnection } from './request';
 import { LoginObserver } from './observer';
 export { AuthedConnection, ServerConnection, LoginObserver };
-export default Chime;
+export default Chimes;

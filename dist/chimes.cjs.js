@@ -761,7 +761,7 @@ var parse = function parse(str, opts) {
 }
 function isBrowser() {
   return typeof window !== "undefined";
-}var storageKey = "chime.user";
+}var storageKey = "chimes.user";
 
 var User =
 /** @class */
@@ -4292,10 +4292,10 @@ function () {
   };
 
   return Connection;
-}();var Chime =
+}();var Chimes =
 /** @class */
 function () {
-  function Chime(api_url, aud) {
+  function Chimes(api_url, aud) {
     this.user = null;
     this.interestedLogin = null;
 
@@ -4307,7 +4307,7 @@ function () {
     this.user = User.loadFromStorage(this.connection);
   }
 
-  Object.defineProperty(Chime.prototype, "loggedIn", {
+  Object.defineProperty(Chimes.prototype, "loggedIn", {
     get: function get() {
       return this.user ? true : false;
     },
@@ -4315,7 +4315,7 @@ function () {
     configurable: true
   });
 
-  Chime.prototype.signup = function (email, password, data) {
+  Chimes.prototype.signup = function (email, password, data) {
     if (data === void 0) {
       data = {};
     }
@@ -4336,7 +4336,7 @@ function () {
     });
   };
 
-  Chime.prototype.resetPassword = function (token, password) {
+  Chimes.prototype.resetPassword = function (token, password) {
     return __awaiter(this, void 0, void 0, function () {
       var res, err_1;
       return __generator(this, function (_a) {
@@ -4374,7 +4374,7 @@ function () {
     });
   };
 
-  Chime.prototype.forgot = function (email) {
+  Chimes.prototype.forgot = function (email) {
     return __awaiter(this, void 0, void 0, function () {
       var res, err_2;
       return __generator(this, function (_a) {
@@ -4411,7 +4411,7 @@ function () {
     });
   };
 
-  Chime.prototype.updateEmail = function (token) {
+  Chimes.prototype.updateEmail = function (token) {
     return __awaiter(this, void 0, void 0, function () {
       var res, err_3;
       return __generator(this, function (_a) {
@@ -4461,7 +4461,7 @@ function () {
     });
   };
 
-  Chime.prototype.confirm = function (code) {
+  Chimes.prototype.confirm = function (code) {
     return __awaiter(this, void 0, void 0, function () {
       var res, err_4;
       return __generator(this, function (_a) {
@@ -4511,11 +4511,11 @@ function () {
     });
   };
 
-  Chime.prototype.letMeKnow = function (me) {
+  Chimes.prototype.letMeKnow = function (me) {
     this.interestedLogin = me;
   };
 
-  Chime.prototype.login = function (email, password) {
+  Chimes.prototype.login = function (email, password) {
     return __awaiter(this, void 0, void 0, function () {
       var tok, err_5, e;
       return __generator(this, function (_a) {
@@ -4575,12 +4575,12 @@ function () {
     });
   };
 
-  Chime.prototype.logout = function () {
+  Chimes.prototype.logout = function () {
     User.clearSession();
     this.user = null;
   };
 
-  Chime.prototype.initUser = function (tok) {
+  Chimes.prototype.initUser = function (tok) {
     return __awaiter(this, void 0, void 0, function () {
       var u, err_6;
       return __generator(this, function (_a) {
@@ -4614,13 +4614,13 @@ function () {
     });
   };
 
-  Chime.prototype.externalLoginRedirect = function (provider) {
+  Chimes.prototype.externalLoginRedirect = function (provider) {
     this.connection.redirectTo("/authorize", {
       provider: provider
     });
   };
 
-  Chime.prototype.handleExternalLogin = function (ticket) {
+  Chimes.prototype.handleExternalLogin = function (ticket) {
     return __awaiter(this, void 0, void 0, function () {
       var strToken, tokenobj;
       return __generator(this, function (_a) {
@@ -4651,13 +4651,13 @@ function () {
     });
   };
 
-  Chime.prototype.getAuthConnection = function () {
+  Chimes.prototype.getAuthConnection = function () {
     return this.user;
   };
 
-  Chime.prototype.getServerConnection = function () {
+  Chimes.prototype.getServerConnection = function () {
     return this.connection;
   };
 
-  return Chime;
-}();exports.default=Chime;
+  return Chimes;
+}();exports.default=Chimes;

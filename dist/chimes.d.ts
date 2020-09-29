@@ -1,7 +1,7 @@
 import User from './user';
 import { AuthedConnection, ServerConnection } from './request';
 import { LoginObserver } from './observer';
-export default class Chime {
+export default class Chimes {
     private connection;
     user: User | null;
     private interestedLogin;
