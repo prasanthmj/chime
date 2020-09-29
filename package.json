@@ -1,10 +1,10 @@
 {
-  "name": "chime",
+  "name": "chimes",
   "version": "0.1.2",
   "description": "Form Data validation library",
-  "main": "dist/chime.cjs.js",
-  "module": "dist/chime.esm.js",
-  "unpkg": "dist/chime.min.js",
+  "main": "dist/chimes.cjs.js",
+  "module": "dist/chimes.esm.js",
+  "unpkg": "dist/chimes.min.js",
   "types": "dist/index.d.ts",
   "typings": "dist/index.d.ts",
   "files": [

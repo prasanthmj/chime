@@ -3,7 +3,7 @@ import Connection from "./connection";
 import {AuthedConnection} from './request';
 import qs from 'qs';
 
-const storageKey = "chime.user"
+const storageKey = "chimes.user"
 
 export type TokenResponse={
     access_token:string,

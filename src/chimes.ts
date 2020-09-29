@@ -7,7 +7,7 @@ import {LoginObserver} from './observer';
 
 
 
-export default class Chime{
+export default class Chimes{
     private connection: Connection;
     public user:User|null=null;
     private interestedLogin:LoginObserver|null=null;

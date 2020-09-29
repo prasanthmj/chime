@@ -90,6 +90,6 @@ function getConfig(package_name, options = {}) {
     return buildFormats;
 }
 
-const buildConfig = getConfig('chime');
+const buildConfig = getConfig('chimes');
 
 export default buildConfig;
