@@ -2,8 +2,14 @@ import {isBrowser} from "./chime-utils"
 import Connection from "./connection";
 import {AuthedConnection} from './request';
 import qs from 'qs';
+import {atob} from 'b2a';
+import Service from "./service"
 
 const storageKey = "chimes.user"
+
+type ServiceEndPoints={
+    [name:string]:string
+}
 
 export type TokenResponse={
     access_token:string,
@@ -18,7 +24,8 @@ export type UserInfo ={
     last_name: string,
     email: string,
     avatar_url: string,
-    email_confirmed: boolean
+    email_confirmed: boolean,
+    endpoints: ServiceEndPoints
 }
 
 
@@ -30,7 +37,7 @@ type UserData={
 
 export default class User implements AuthedConnection
 {
-    public info:UserInfo={id:"", first_name:"", last_name:"", email:"", avatar_url:"", email_confirmed:false}
+    public info:UserInfo={id:"", first_name:"", last_name:"", email:"", avatar_url:"", email_confirmed:false, endpoints:{}}
     
     constructor(private connection: Connection, 
                 private token:TokenResponse)
@@ -43,10 +50,9 @@ export default class User implements AuthedConnection
         let claims
         try {
           claims = JSON.parse(atob(tok.access_token.split(".")[1]));
-          console.log("claims ", claims)
           this.token.expires_at = claims.exp * 1000;
         } catch (e) {
-          console.error(new Error(`Failed to parse tokenResponse claims: ${JSON.stringify(tok)}`))
+          console.error(new Error(`Failed to parse tokenResponse claims: ${JSON.stringify(tok)} error: ${e}`))
         }   
     }
     
@@ -81,7 +87,7 @@ export default class User implements AuthedConnection
         return u;
     }
     
-    private async getJWTAccessToken():Promise<string>{
+    public async getJWTAccessToken():Promise<string>{
         const ExpiryMargin = 60 * 1000;
         console.log("getJWTAccessToken ")
         if((this.token.expires_at - ExpiryMargin) < Date.now()){
@@ -191,5 +197,13 @@ export default class User implements AuthedConnection
         catch(err){
             throw err
         }
+    }
+    
+    public createService(name:string):Service|null{
+        if(this.info.endpoints[name])
+        {
+            return new Service(name, this.info.endpoints[name], this)
+        }
+        return null
     }
 }

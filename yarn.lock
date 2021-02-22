@@ -1163,6 +1163,11 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
+"@types/b2a@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.npmjs.org/@types/b2a/-/b2a-1.0.0.tgz#bce7abfdea846d289560fa0d247a1f37cf28df5a"
+  integrity sha512-Rp3I849AMkT8oiYPy5NW0VkJofhwxUcjUF10+a4kYJcf/cHcw8vd+pMc4v/4w11VMibIiVKzfNg/jpSZDOAVEA==
+
 "@types/babel__core@^7.0.0", "@types/babel__core@^7.1.7":
   version "7.1.10"
   resolved "https://registry.npmjs.org/@types/babel__core/-/babel__core-7.1.10.tgz#ca58fc195dd9734e77e57c6f2df565623636ab40"
@@ -1533,6 +1538,11 @@ axios@^0.20.0:
   integrity sha512-ANA4rr2BDcmmAQLOKft2fufrtuvlqR+cXNNinUmvfeSNCOF98PZL+7M/v1zIdGo7OLjEA9J2gXJL+j4zGsl0bA==
   dependencies:
     follow-redirects "^1.10.0"
+
+b2a@^1.1.2:
+  version "1.1.2"
+  resolved "https://registry.npmjs.org/b2a/-/b2a-1.1.2.tgz#3bb0a7dbc0931c84ac97722fa4f5f51ba0a7d831"
+  integrity sha512-Ee7SUAyWeIx4ICRygOi7dVlGpHRxynsaLIZwOtHtGKls3LhLchTRk5KrI0O8ioWqy94ikkE8Z2Li3LWNd027/A==
 
 babel-jest@^26.3.0:
   version "26.3.0"

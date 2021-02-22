@@ -21,5 +21,6 @@ export default class Chimes {
     externalLoginRedirect(provider: string): void;
     handleExternalLogin(ticket: string): Promise<User>;
     getAuthConnection(): AuthedConnection | null;
+    getService(name: string): AuthedConnection | null;
     getServerConnection(): ServerConnection;
 }

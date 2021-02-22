@@ -1,5 +1,9 @@
 import Connection from "./connection";
 import { AuthedConnection } from './request';
+import Service from "./service";
+declare type ServiceEndPoints = {
+    [name: string]: string;
+};
 export declare type TokenResponse = {
     access_token: string;
     token_type: string;
@@ -14,6 +18,7 @@ export declare type UserInfo = {
     email: string;
     avatar_url: string;
     email_confirmed: boolean;
+    endpoints: ServiceEndPoints;
 };
 export default class User implements AuthedConnection {
     private connection;
@@ -24,11 +29,13 @@ export default class User implements AuthedConnection {
     saveSession(): void;
     static clearSession(): void;
     static loadFromStorage(connection: Connection): User | null;
-    private getJWTAccessToken;
+    getJWTAccessToken(): Promise<string>;
     loadUserData(): Promise<UserInfo>;
     request(path: string, data?: any): Promise<any>;
     updatePassword(old: string, newPwd: string): Promise<any>;
     saveProfileField(field_name: string, value: string): Promise<any>;
     resendConfirmationEmail(): Promise<any>;
     private renewRefreshToken;
+    createService(name: string): Service | null;
 }
+export {};

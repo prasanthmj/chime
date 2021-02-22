@@ -761,351 +761,52 @@ var parse = function parse(str, opts) {
 }
 function isBrowser() {
   return typeof window !== "undefined";
-}var storageKey = "chimes.user";
-
-var User =
-/** @class */
-function () {
-  function User(connection, token) {
-    this.connection = connection;
-    this.token = token;
-    this.info = {
-      id: "",
-      first_name: "",
-      last_name: "",
-      email: "",
-      avatar_url: "",
-      email_confirmed: false
-    };
-    this.processTokenResponse(token);
+}var error = function error(message) {
+  function E() {
+    this.message = message;
   }
 
-  User.prototype.processTokenResponse = function (tok) {
-    this.token = tok;
-    var claims;
+  E.prototype = new Error();
+  E.prototype.name = 'InvalidCharacterError';
+  E.prototype.code = 5;
+  return E;
+};
+var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';var E = error('The string to be encoded contains characters out of range');var E$1 = error('The string to be decoded is not correctly encoded');
+var _atob = typeof atob !== 'undefined'
+/* istanbul ignore next */
+? function (input) {
+  return atob(input);
+} : function (input) {
+  var str = String(input).replace(/[=]+$/, '');
 
-    try {
-      claims = JSON.parse(atob(tok.access_token.split(".")[1]));
-      console.log("claims ", claims);
-      this.token.expires_at = claims.exp * 1000;
-    } catch (e) {
-      console.error(new Error("Failed to parse tokenResponse claims: " + JSON.stringify(tok)));
-    }
-  };
+  if (str.length % 4 == 1) {
+    throw new E$1();
+  }
 
-  User.prototype.saveSession = function () {
-    if (isBrowser()) {
-      var u = {
-        token: this.token,
-        info: this.info
-      };
-      localStorage.setItem(storageKey, JSON.stringify(u));
-    }
-  };
+  var output = '';
 
-  User.clearSession = function () {
-    //TODO: call logout end point
-    localStorage.removeItem(storageKey);
-  };
+  for ( // initialize result and counters
+  var bc = 0, bs, buffer, idx = 0; // get next character
+  buffer = str.charAt(idx++); // character found in table? initialize bit storage and add its ascii value;
+  ~buffer && (bs = bc % 4 ? bs * 64 + buffer : buffer, // and if not first of each 4 characters,
+  // convert the first 8 bits to one ascii character
+  bc++ % 4) ? output += String.fromCharCode(255 & bs >> (-2 * bc & 6)) : 0) {
+    // try to find character in table (0-63, not found => -1)
+    buffer = chars.indexOf(buffer);
+  }
 
-  User.loadFromStorage = function (connection) {
-    if (!isBrowser()) {
-      return null;
-    }
+  return output;
+};
 
-    var strUser = localStorage.getItem(storageKey);
-    console.log("loading user info from localstorage ", strUser);
+var utf16 = function utf16(input) {
+  return decodeURIComponent(input.split('').map(function (c) {
+    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+  }).join(''));
+};
 
-    if (!strUser) {
-      return null;
-    }
-
-    var userData = JSON.parse(strUser);
-
-    if (!userData || !userData.token) {
-      return null;
-    }
-
-    var u = new User(connection, userData.token);
-    u.info = userData.info;
-    return u;
-  };
-
-  User.prototype.getJWTAccessToken = function () {
-    return __awaiter(this, void 0, void 0, function () {
-      var ExpiryMargin;
-      return __generator(this, function (_a) {
-        ExpiryMargin = 60 * 1000;
-        console.log("getJWTAccessToken ");
-
-        if (this.token.expires_at - ExpiryMargin < Date.now()) {
-          return [2
-          /*return*/
-          , this.renewRefreshToken(this.token.refresh_token)];
-        } else {
-          return [2
-          /*return*/
-          , Promise.resolve(this.token.access_token)];
-        }
-      });
-    });
-  };
-
-  User.prototype.loadUserData = function () {
-    return __awaiter(this, void 0, void 0, function () {
-      var _a, err_1;
-
-      return __generator(this, function (_b) {
-        switch (_b.label) {
-          case 0:
-            _b.trys.push([0, 2,, 3]);
-
-            _a = this;
-            return [4
-            /*yield*/
-            , this.request("/user")];
-
-          case 1:
-            _a.info = _b.sent();
-            console.log("User data ", this.info);
-            this.saveSession();
-            return [2
-            /*return*/
-            , this.info];
-
-          case 2:
-            err_1 = _b.sent();
-            throw err_1;
-
-          case 3:
-            return [2
-            /*return*/
-            ];
-        }
-      });
-    });
-  };
-
-  User.prototype.request = function (path, data) {
-    if (data === void 0) {
-      data = {};
-    }
-
-    return __awaiter(this, void 0, void 0, function () {
-      var token, opts, resp, err_2;
-      return __generator(this, function (_a) {
-        switch (_a.label) {
-          case 0:
-            _a.trys.push([0, 3,, 4]);
-
-            console.log("authed conn request ");
-            return [4
-            /*yield*/
-            , this.getJWTAccessToken()];
-
-          case 1:
-            token = _a.sent();
-
-            if (token === "") {
-              Promise.reject(new Error("Failed logging in "));
-            }
-
-            opts = {
-              headers: {
-                Authorization: "Bearer " + token
-              }
-            };
-            return [4
-            /*yield*/
-            , this.connection.request(path, _assign(_assign({}, opts), data))];
-
-          case 2:
-            resp = _a.sent();
-            return [2
-            /*return*/
-            , resp];
-
-          case 3:
-            err_2 = _a.sent();
-            return [2
-            /*return*/
-            , Promise.reject(err_2)];
-
-          case 4:
-            return [2
-            /*return*/
-            ];
-        }
-      });
-    });
-  };
-
-  User.prototype.updatePassword = function (old, newPwd) {
-    return __awaiter(this, void 0, void 0, function () {
-      var res, e_1;
-      return __generator(this, function (_a) {
-        switch (_a.label) {
-          case 0:
-            _a.trys.push([0, 2,, 3]);
-
-            return [4
-            /*yield*/
-            , this.request('/user/update/password', {
-              method: 'post',
-              data: {
-                old: old,
-                "new": newPwd
-              }
-            })];
-
-          case 1:
-            res = _a.sent();
-            return [2
-            /*return*/
-            , res];
-
-          case 2:
-            e_1 = _a.sent();
-            throw e_1;
-
-          case 3:
-            return [2
-            /*return*/
-            ];
-        }
-      });
-    });
-  };
-
-  User.prototype.saveProfileField = function (field_name, value) {
-    return __awaiter(this, void 0, void 0, function () {
-      var res, e_2;
-      return __generator(this, function (_a) {
-        switch (_a.label) {
-          case 0:
-            _a.trys.push([0, 2,, 3]);
-
-            return [4
-            /*yield*/
-            , this.request('/user/profile', {
-              method: 'post',
-              data: {
-                name: field_name,
-                value: value
-              }
-            })];
-
-          case 1:
-            res = _a.sent();
-
-            if (field_name == "first_name" || field_name == "last_name" || field_name == "email") {
-              this.info[field_name] = value;
-              this.saveSession();
-            }
-
-            return [2
-            /*return*/
-            , res];
-
-          case 2:
-            e_2 = _a.sent();
-            throw e_2;
-
-          case 3:
-            return [2
-            /*return*/
-            ];
-        }
-      });
-    });
-  };
-
-  User.prototype.resendConfirmationEmail = function () {
-    return __awaiter(this, void 0, void 0, function () {
-      var res, e_3;
-      return __generator(this, function (_a) {
-        switch (_a.label) {
-          case 0:
-            _a.trys.push([0, 2,, 3]);
-
-            return [4
-            /*yield*/
-            , this.request('/user/resend/conf/email', {
-              method: 'post',
-              data: {
-                token: "66hrty"
-              }
-            })];
-
-          case 1:
-            res = _a.sent();
-            return [2
-            /*return*/
-            , res];
-
-          case 2:
-            e_3 = _a.sent();
-            throw e_3;
-
-          case 3:
-            return [2
-            /*return*/
-            ];
-        }
-      });
-    });
-  };
-
-  User.prototype.renewRefreshToken = function (refresh_token) {
-    return __awaiter(this, void 0, void 0, function () {
-      var new_token, err_3;
-      return __generator(this, function (_a) {
-        switch (_a.label) {
-          case 0:
-            _a.trys.push([0, 2,, 3]);
-
-            return [4
-            /*yield*/
-            , this.connection.request('/token', {
-              method: 'post',
-              data: lib.stringify({
-                grant_type: "refresh_token",
-                refresh_token: refresh_token
-              }),
-              headers: {
-                'content-type': 'application/x-www-form-urlencoded;charset=utf-8'
-              }
-            })];
-
-          case 1:
-            new_token = _a.sent();
-            console.log("new token ", new_token);
-
-            if (new_token.access_token) {
-              this.token = new_token;
-              this.saveSession();
-              return [2
-              /*return*/
-              , new_token.access_token];
-            } else {
-              throw new Error("empty access token from the server");
-            }
-
-          case 2:
-            err_3 = _a.sent();
-            throw err_3;
-
-          case 3:
-            return [2
-            /*return*/
-            ];
-        }
-      });
-    });
-  };
-
-  return User;
-}();var bind = function bind(fn, thisArg) {
+var atob$1 = (function (input) {
+  return utf16(_atob(input));
+});var bind = function bind(fn, thisArg) {
   return function wrap() {
     var args = new Array(arguments.length);
 
@@ -4292,6 +3993,423 @@ function () {
   };
 
   return Connection;
+}();var Service =
+/** @class */
+function () {
+  function Service(name, endpoint, tokenP) {
+    this.name = name;
+    this.endpoint = endpoint;
+    this.tokenP = tokenP;
+    this.connection = new Connection(endpoint);
+  }
+
+  Service.prototype.request = function (path, data) {
+    if (data === void 0) {
+      data = {};
+    }
+
+    return __awaiter(this, void 0, void 0, function () {
+      var token, opts, resp, err_1;
+      return __generator(this, function (_a) {
+        switch (_a.label) {
+          case 0:
+            _a.trys.push([0, 3,, 4]);
+
+            console.log("authed conn request ");
+            return [4
+            /*yield*/
+            , this.tokenP.getJWTAccessToken()];
+
+          case 1:
+            token = _a.sent();
+
+            if (token === "") {
+              Promise.reject(new Error("Failed logging in "));
+            }
+
+            opts = {
+              headers: {
+                Authorization: "Bearer " + token
+              }
+            };
+            return [4
+            /*yield*/
+            , this.connection.request(path, _assign(_assign({}, opts), data))];
+
+          case 2:
+            resp = _a.sent();
+            return [2
+            /*return*/
+            , resp];
+
+          case 3:
+            err_1 = _a.sent();
+            return [2
+            /*return*/
+            , Promise.reject(err_1)];
+
+          case 4:
+            return [2
+            /*return*/
+            ];
+        }
+      });
+    });
+  };
+
+  return Service;
+}();var storageKey = "chimes.user";
+
+var User =
+/** @class */
+function () {
+  function User(connection, token) {
+    this.connection = connection;
+    this.token = token;
+    this.info = {
+      id: "",
+      first_name: "",
+      last_name: "",
+      email: "",
+      avatar_url: "",
+      email_confirmed: false,
+      endpoints: {}
+    };
+    this.processTokenResponse(token);
+  }
+
+  User.prototype.processTokenResponse = function (tok) {
+    this.token = tok;
+    var claims;
+
+    try {
+      claims = JSON.parse(atob$1(tok.access_token.split(".")[1]));
+      this.token.expires_at = claims.exp * 1000;
+    } catch (e) {
+      console.error(new Error("Failed to parse tokenResponse claims: " + JSON.stringify(tok) + " error: " + e));
+    }
+  };
+
+  User.prototype.saveSession = function () {
+    if (isBrowser()) {
+      var u = {
+        token: this.token,
+        info: this.info
+      };
+      localStorage.setItem(storageKey, JSON.stringify(u));
+    }
+  };
+
+  User.clearSession = function () {
+    //TODO: call logout end point
+    localStorage.removeItem(storageKey);
+  };
+
+  User.loadFromStorage = function (connection) {
+    if (!isBrowser()) {
+      return null;
+    }
+
+    var strUser = localStorage.getItem(storageKey);
+    console.log("loading user info from localstorage ", strUser);
+
+    if (!strUser) {
+      return null;
+    }
+
+    var userData = JSON.parse(strUser);
+
+    if (!userData || !userData.token) {
+      return null;
+    }
+
+    var u = new User(connection, userData.token);
+    u.info = userData.info;
+    return u;
+  };
+
+  User.prototype.getJWTAccessToken = function () {
+    return __awaiter(this, void 0, void 0, function () {
+      var ExpiryMargin;
+      return __generator(this, function (_a) {
+        ExpiryMargin = 60 * 1000;
+        console.log("getJWTAccessToken ");
+
+        if (this.token.expires_at - ExpiryMargin < Date.now()) {
+          return [2
+          /*return*/
+          , this.renewRefreshToken(this.token.refresh_token)];
+        } else {
+          return [2
+          /*return*/
+          , Promise.resolve(this.token.access_token)];
+        }
+      });
+    });
+  };
+
+  User.prototype.loadUserData = function () {
+    return __awaiter(this, void 0, void 0, function () {
+      var _a, err_1;
+
+      return __generator(this, function (_b) {
+        switch (_b.label) {
+          case 0:
+            _b.trys.push([0, 2,, 3]);
+
+            _a = this;
+            return [4
+            /*yield*/
+            , this.request("/user")];
+
+          case 1:
+            _a.info = _b.sent();
+            console.log("User data ", this.info);
+            this.saveSession();
+            return [2
+            /*return*/
+            , this.info];
+
+          case 2:
+            err_1 = _b.sent();
+            throw err_1;
+
+          case 3:
+            return [2
+            /*return*/
+            ];
+        }
+      });
+    });
+  };
+
+  User.prototype.request = function (path, data) {
+    if (data === void 0) {
+      data = {};
+    }
+
+    return __awaiter(this, void 0, void 0, function () {
+      var token, opts, resp, err_2;
+      return __generator(this, function (_a) {
+        switch (_a.label) {
+          case 0:
+            _a.trys.push([0, 3,, 4]);
+
+            console.log("authed conn request ");
+            return [4
+            /*yield*/
+            , this.getJWTAccessToken()];
+
+          case 1:
+            token = _a.sent();
+
+            if (token === "") {
+              Promise.reject(new Error("Failed logging in "));
+            }
+
+            opts = {
+              headers: {
+                Authorization: "Bearer " + token
+              }
+            };
+            return [4
+            /*yield*/
+            , this.connection.request(path, _assign(_assign({}, opts), data))];
+
+          case 2:
+            resp = _a.sent();
+            return [2
+            /*return*/
+            , resp];
+
+          case 3:
+            err_2 = _a.sent();
+            return [2
+            /*return*/
+            , Promise.reject(err_2)];
+
+          case 4:
+            return [2
+            /*return*/
+            ];
+        }
+      });
+    });
+  };
+
+  User.prototype.updatePassword = function (old, newPwd) {
+    return __awaiter(this, void 0, void 0, function () {
+      var res, e_1;
+      return __generator(this, function (_a) {
+        switch (_a.label) {
+          case 0:
+            _a.trys.push([0, 2,, 3]);
+
+            return [4
+            /*yield*/
+            , this.request('/user/update/password', {
+              method: 'post',
+              data: {
+                old: old,
+                "new": newPwd
+              }
+            })];
+
+          case 1:
+            res = _a.sent();
+            return [2
+            /*return*/
+            , res];
+
+          case 2:
+            e_1 = _a.sent();
+            throw e_1;
+
+          case 3:
+            return [2
+            /*return*/
+            ];
+        }
+      });
+    });
+  };
+
+  User.prototype.saveProfileField = function (field_name, value) {
+    return __awaiter(this, void 0, void 0, function () {
+      var res, e_2;
+      return __generator(this, function (_a) {
+        switch (_a.label) {
+          case 0:
+            _a.trys.push([0, 2,, 3]);
+
+            return [4
+            /*yield*/
+            , this.request('/user/profile', {
+              method: 'post',
+              data: {
+                name: field_name,
+                value: value
+              }
+            })];
+
+          case 1:
+            res = _a.sent();
+
+            if (field_name == "first_name" || field_name == "last_name" || field_name == "email") {
+              this.info[field_name] = value;
+              this.saveSession();
+            }
+
+            return [2
+            /*return*/
+            , res];
+
+          case 2:
+            e_2 = _a.sent();
+            throw e_2;
+
+          case 3:
+            return [2
+            /*return*/
+            ];
+        }
+      });
+    });
+  };
+
+  User.prototype.resendConfirmationEmail = function () {
+    return __awaiter(this, void 0, void 0, function () {
+      var res, e_3;
+      return __generator(this, function (_a) {
+        switch (_a.label) {
+          case 0:
+            _a.trys.push([0, 2,, 3]);
+
+            return [4
+            /*yield*/
+            , this.request('/user/resend/conf/email', {
+              method: 'post',
+              data: {
+                token: "66hrty"
+              }
+            })];
+
+          case 1:
+            res = _a.sent();
+            return [2
+            /*return*/
+            , res];
+
+          case 2:
+            e_3 = _a.sent();
+            throw e_3;
+
+          case 3:
+            return [2
+            /*return*/
+            ];
+        }
+      });
+    });
+  };
+
+  User.prototype.renewRefreshToken = function (refresh_token) {
+    return __awaiter(this, void 0, void 0, function () {
+      var new_token, err_3;
+      return __generator(this, function (_a) {
+        switch (_a.label) {
+          case 0:
+            _a.trys.push([0, 2,, 3]);
+
+            return [4
+            /*yield*/
+            , this.connection.request('/token', {
+              method: 'post',
+              data: lib.stringify({
+                grant_type: "refresh_token",
+                refresh_token: refresh_token
+              }),
+              headers: {
+                'content-type': 'application/x-www-form-urlencoded;charset=utf-8'
+              }
+            })];
+
+          case 1:
+            new_token = _a.sent();
+            console.log("new token ", new_token);
+
+            if (new_token.access_token) {
+              this.token = new_token;
+              this.saveSession();
+              return [2
+              /*return*/
+              , new_token.access_token];
+            } else {
+              throw new Error("empty access token from the server");
+            }
+
+          case 2:
+            err_3 = _a.sent();
+            throw err_3;
+
+          case 3:
+            return [2
+            /*return*/
+            ];
+        }
+      });
+    });
+  };
+
+  User.prototype.createService = function (name) {
+    if (this.info.endpoints[name]) {
+      return new Service(name, this.info.endpoints[name], this);
+    }
+
+    return null;
+  };
+
+  return User;
 }();var Chimes =
 /** @class */
 function () {
@@ -4653,6 +4771,14 @@ function () {
 
   Chimes.prototype.getAuthConnection = function () {
     return this.user;
+  };
+
+  Chimes.prototype.getService = function (name) {
+    if (!this.user) {
+      return null;
+    }
+
+    return this.user.createService(name);
   };
 
   Chimes.prototype.getServerConnection = function () {

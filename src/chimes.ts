@@ -177,6 +177,14 @@ export default class Chimes{
         return this.user
     }
     
+    public getService(name:string):AuthedConnection|null{
+        if(!this.user)
+        {
+            return null
+        }
+        return this.user.createService(name)
+    }
+    
     public getServerConnection():ServerConnection{
         return this.connection
     }
