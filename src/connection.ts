@@ -19,7 +19,8 @@ export default class Connection
     }
     
     public async request(path:string, options:any){
-        const defaults = { url: this.fullUrl(path) }
+        console.log("axios request 2 ...")
+        const defaults = { url: this.fullUrl(path), withCredentials: true }
         return axios({...options, ...defaults})
                     .then((resp)=>
                     {

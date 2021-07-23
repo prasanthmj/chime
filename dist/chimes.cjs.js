@@ -3978,8 +3978,10 @@ function () {
     return __awaiter(this, void 0, void 0, function () {
       var defaults;
       return __generator(this, function (_a) {
+        console.log("axios request 2 ...");
         defaults = {
-          url: this.fullUrl(path)
+          url: this.fullUrl(path),
+          withCredentials: true
         };
         return [2
         /*return*/
@@ -4015,7 +4017,6 @@ function () {
           case 0:
             _a.trys.push([0, 3,, 4]);
 
-            console.log("authed conn request ");
             return [4
             /*yield*/
             , this.tokenP.getJWTAccessToken()];
@@ -4027,6 +4028,7 @@ function () {
               Promise.reject(new Error("Failed logging in "));
             }
 
+            console.log("axios request ...");
             opts = {
               headers: {
                 Authorization: "Bearer " + token
@@ -4044,9 +4046,7 @@ function () {
 
           case 3:
             err_1 = _a.sent();
-            return [2
-            /*return*/
-            , Promise.reject(err_1)];
+            throw err_1;
 
           case 4:
             return [2
@@ -4133,7 +4133,6 @@ function () {
       var ExpiryMargin;
       return __generator(this, function (_a) {
         ExpiryMargin = 60 * 1000;
-        console.log("getJWTAccessToken ");
 
         if (this.token.expires_at - ExpiryMargin < Date.now()) {
           return [2
@@ -4164,7 +4163,6 @@ function () {
 
           case 1:
             _a.info = _b.sent();
-            console.log("User data ", this.info);
             this.saveSession();
             return [2
             /*return*/
@@ -4195,7 +4193,6 @@ function () {
           case 0:
             _a.trys.push([0, 3,, 4]);
 
-            console.log("authed conn request ");
             return [4
             /*yield*/
             , this.getJWTAccessToken()];

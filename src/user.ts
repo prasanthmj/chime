@@ -89,7 +89,6 @@ export default class User implements AuthedConnection
     
     public async getJWTAccessToken():Promise<string>{
         const ExpiryMargin = 60 * 1000;
-        console.log("getJWTAccessToken ")
         if((this.token.expires_at - ExpiryMargin) < Date.now()){
             return this.renewRefreshToken(this.token.refresh_token)
         }else{
@@ -99,7 +98,6 @@ export default class User implements AuthedConnection
     public async loadUserData(){
         try{
             this.info = await this.request("/user")
-            console.log("User data ", this.info)
             this.saveSession();
             return this.info;
         }
@@ -111,7 +109,6 @@ export default class User implements AuthedConnection
     
     public async request(path: string, data:any={}){
         try{
-            console.log("authed conn request ")
             const token = await this.getJWTAccessToken()
             if(token === ""){
                 Promise.reject(new Error("Failed logging in ") )

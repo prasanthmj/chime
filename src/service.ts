@@ -16,17 +16,18 @@ export default class Service implements AuthedConnection
      public async request(path: string, data:any={})
      {
         try{
-            console.log("authed conn request ")
             const token = await this.tokenP.getJWTAccessToken()
             if(token === ""){
                 Promise.reject(new Error("Failed logging in ") )
             }
+            
+            console.log("axios request ...")
             const opts = { headers:{Authorization: `Bearer ${token}` } }
             
             const resp = await this.connection.request(path, {...opts, ...data})  
             return resp;          
         }catch(err){
-            return Promise.reject(err)
+            throw err
         }
     }
     
