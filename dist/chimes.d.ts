@@ -1,11 +1,11 @@
 import User from './user';
-import { AuthedConnection, ServerConnection } from './request';
+import { RemoteConnection } from './request';
 import { LoginObserver } from './observer';
 export default class Chimes {
-    private connection;
+    private auth_connection;
     user: User | null;
     private interestedLogin;
-    constructor(api_url?: string, aud?: string);
+    constructor(auth_url?: string, aud?: string);
     get loggedIn(): boolean;
     signup(email: string, password: string, data?: {}): Promise<any>;
     resetPassword(token: string, password: string): Promise<any>;
@@ -20,7 +20,7 @@ export default class Chimes {
     private initUser;
     externalLoginRedirect(provider: string): void;
     handleExternalLogin(ticket: string): Promise<User>;
-    getAuthConnection(): AuthedConnection | null;
-    getService(name: string): AuthedConnection | null;
-    getServerConnection(): ServerConnection;
+    getService(name: string, endpoint: string): RemoteConnection;
+    getAuthService(): RemoteConnection | null;
+    getAPIService(name: string): RemoteConnection | null;
 }

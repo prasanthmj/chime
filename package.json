@@ -1,6 +1,6 @@
 {
   "name": "@simfatic/chimes",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Form Data validation library",
   "main": "dist/chimes.cjs.js",
   "module": "dist/chimes.esm.js",

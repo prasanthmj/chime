@@ -2,27 +2,24 @@
 import qs from 'qs';
 import User, {TokenResponse} from './user';
 import Connection from "./connection";
-import {AuthedConnection, ServerConnection} from './request';
+import {RemoteConnection} from './request';
 import {LoginObserver} from './observer';
-
+import Service from "./service"
 
 
 export default class Chimes{
-    private connection: Connection;
+    private auth_connection: Connection;
     public user:User|null=null;
     private interestedLogin:LoginObserver|null=null;
     
-    
-    constructor(api_url ?:string, aud ?: string){
-        if(!api_url){
-            api_url=""
-        }
+    constructor(auth_url?:string, aud?:string){
         if(!aud){
             aud=""
         }
-        this.connection = new Connection(api_url)
         
-        this.user = User.loadFromStorage(this.connection)
+        this.auth_connection = new Connection(auth_url||'')
+        
+        this.user = User.loadFromStorage(this.auth_connection)
     }
     
     public get loggedIn():boolean{
@@ -30,14 +27,14 @@ export default class Chimes{
     }
     
     public async signup(email: string, password: string, data={}) {
-        return this.connection.request('/signup',{
+        return this.auth_connection.request('/signup',{
             method: 'post',
             data: {email,password,data}
             })
     }
     public async resetPassword(token:string, password: string){
         try{
-            const res = await this.connection.request('/reset/update',{
+            const res = await this.auth_connection.request('/reset/update',{
                 method: 'post',
                 data: {token, password}
                 })            
@@ -52,7 +49,7 @@ export default class Chimes{
     }
     public async forgot(email: string){
         try{
-            const res = await this.connection.request('/reset/init',{
+            const res = await this.auth_connection.request('/reset/init',{
                 method: 'post',
                 data: {email}
                 })            
@@ -67,7 +64,7 @@ export default class Chimes{
     }
     public async updateEmail(token: string){
         try{
-            const res = await this.connection.request('/email/update',{
+            const res = await this.auth_connection.request('/email/update',{
                 method: 'post',
                 data: {token}
                 })            
@@ -85,7 +82,7 @@ export default class Chimes{
     }
     public async confirm(code: string){
         try{
-            const res = await this.connection.request('/confirm',{
+            const res = await this.auth_connection.request('/confirm',{
                 method: 'post',
                 data: {code}
                 })            
@@ -106,7 +103,7 @@ export default class Chimes{
     }
     public async login(email: string, password: string) {
         try{
-            const tok = await this.connection.request('/token',{
+            const tok = await this.auth_connection.request('/token',{
                     method:'post',
                     data:qs.stringify({
                         grant_type: "password",
@@ -141,7 +138,7 @@ export default class Chimes{
     
     private  async initUser(tok:TokenResponse){
         try{
-            const u = new User(this.connection, tok);
+            const u = new User(this.auth_connection, tok);
             await u.loadUserData();
             this.user = u;
             return u;            
@@ -152,7 +149,7 @@ export default class Chimes{
 
     }
     public externalLoginRedirect(provider:string){
-        this.connection.redirectTo("/authorize", {provider})
+        this.auth_connection.redirectTo("/authorize", {provider})
     }
     public async handleExternalLogin(ticket: string){
         try{
@@ -173,11 +170,16 @@ export default class Chimes{
         
     }
     
-    public getAuthConnection():AuthedConnection|null{
+    public getService(name:string,endpoint:string):RemoteConnection{
+        
+        return new Service(name, endpoint)
+    }
+    
+    public getAuthService():RemoteConnection|null{
         return this.user
     }
     
-    public getService(name:string):AuthedConnection|null{
+    public getAPIService(name:string):RemoteConnection|null{
         if(!this.user)
         {
             return null
@@ -185,8 +187,5 @@ export default class Chimes{
         return this.user.createService(name)
     }
     
-    public getServerConnection():ServerConnection{
-        return this.connection
-    }
     
 }

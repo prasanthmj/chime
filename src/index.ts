@@ -1,10 +1,9 @@
 import Chimes from './chimes'
-import {AuthedConnection, ServerConnection} from './request';
+import {RemoteConnection} from './request';
 import {LoginObserver} from './observer';
 
 export {
-    AuthedConnection,
-    ServerConnection,
+    RemoteConnection,
     LoginObserver
 }
 

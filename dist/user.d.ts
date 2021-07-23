@@ -1,5 +1,5 @@
 import Connection from "./connection";
-import { AuthedConnection } from './request';
+import { RemoteConnection } from './request';
 import Service from "./service";
 declare type ServiceEndPoints = {
     [name: string]: string;
@@ -20,7 +20,7 @@ export declare type UserInfo = {
     email_confirmed: boolean;
     endpoints: ServiceEndPoints;
 };
-export default class User implements AuthedConnection {
+export default class User implements RemoteConnection {
     private connection;
     private token;
     info: UserInfo;

@@ -1,6 +1,6 @@
 import {isBrowser} from "./chime-utils"
 import Connection from "./connection";
-import {AuthedConnection} from './request';
+import {RemoteConnection} from './request';
 import qs from 'qs';
 import {atob} from 'b2a';
 import Service from "./service"
@@ -35,7 +35,7 @@ type UserData={
 }
 
 
-export default class User implements AuthedConnection
+export default class User implements RemoteConnection
 {
     public info:UserInfo={id:"", first_name:"", last_name:"", email:"", avatar_url:"", email_confirmed:false, endpoints:{}}
     

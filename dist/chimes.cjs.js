@@ -4011,12 +4011,16 @@ function () {
     }
 
     return __awaiter(this, void 0, void 0, function () {
-      var token, opts, resp, err_1;
+      var opts, token, resp, err_1;
       return __generator(this, function (_a) {
         switch (_a.label) {
           case 0:
-            _a.trys.push([0, 3,, 4]);
+            _a.trys.push([0, 4,, 5]);
 
+            opts = {};
+            if (!this.tokenP) return [3
+            /*break*/
+            , 2];
             return [4
             /*yield*/
             , this.tokenP.getJWTAccessToken()];
@@ -4028,27 +4032,30 @@ function () {
               Promise.reject(new Error("Failed logging in "));
             }
 
-            console.log("axios request ...");
+            console.log("service -> axios request ...");
             opts = {
               headers: {
                 Authorization: "Bearer " + token
               }
             };
+            _a.label = 2;
+
+          case 2:
             return [4
             /*yield*/
             , this.connection.request(path, _assign(_assign({}, opts), data))];
 
-          case 2:
+          case 3:
             resp = _a.sent();
             return [2
             /*return*/
             , resp];
 
-          case 3:
+          case 4:
             err_1 = _a.sent();
             throw err_1;
 
-          case 4:
+          case 5:
             return [2
             /*return*/
             ];
@@ -4410,16 +4417,12 @@ function () {
 }();var Chimes =
 /** @class */
 function () {
-  function Chimes(api_url, aud) {
+  function Chimes(auth_url, aud) {
     this.user = null;
     this.interestedLogin = null;
 
-    if (!api_url) {
-      api_url = "";
-    }
-
-    this.connection = new Connection(api_url);
-    this.user = User.loadFromStorage(this.connection);
+    this.auth_connection = new Connection(auth_url || '');
+    this.user = User.loadFromStorage(this.auth_connection);
   }
 
   Object.defineProperty(Chimes.prototype, "loggedIn", {
@@ -4439,7 +4442,7 @@ function () {
       return __generator(this, function (_a) {
         return [2
         /*return*/
-        , this.connection.request('/signup', {
+        , this.auth_connection.request('/signup', {
           method: 'post',
           data: {
             email: email,
@@ -4461,7 +4464,7 @@ function () {
 
             return [4
             /*yield*/
-            , this.connection.request('/reset/update', {
+            , this.auth_connection.request('/reset/update', {
               method: 'post',
               data: {
                 token: token,
@@ -4499,7 +4502,7 @@ function () {
 
             return [4
             /*yield*/
-            , this.connection.request('/reset/init', {
+            , this.auth_connection.request('/reset/init', {
               method: 'post',
               data: {
                 email: email
@@ -4536,7 +4539,7 @@ function () {
 
             return [4
             /*yield*/
-            , this.connection.request('/email/update', {
+            , this.auth_connection.request('/email/update', {
               method: 'post',
               data: {
                 token: token
@@ -4586,7 +4589,7 @@ function () {
 
             return [4
             /*yield*/
-            , this.connection.request('/confirm', {
+            , this.auth_connection.request('/confirm', {
               method: 'post',
               data: {
                 code: code
@@ -4640,7 +4643,7 @@ function () {
 
             return [4
             /*yield*/
-            , this.connection.request('/token', {
+            , this.auth_connection.request('/token', {
               method: 'post',
               data: lib.stringify({
                 grant_type: "password",
@@ -4703,7 +4706,7 @@ function () {
           case 0:
             _a.trys.push([0, 2,, 3]);
 
-            u = new User(this.connection, tok);
+            u = new User(this.auth_connection, tok);
             return [4
             /*yield*/
             , u.loadUserData()];
@@ -4730,7 +4733,7 @@ function () {
   };
 
   Chimes.prototype.externalLoginRedirect = function (provider) {
-    this.connection.redirectTo("/authorize", {
+    this.auth_connection.redirectTo("/authorize", {
       provider: provider
     });
   };
@@ -4766,20 +4769,20 @@ function () {
     });
   };
 
-  Chimes.prototype.getAuthConnection = function () {
+  Chimes.prototype.getService = function (name, endpoint) {
+    return new Service(name, endpoint);
+  };
+
+  Chimes.prototype.getAuthService = function () {
     return this.user;
   };
 
-  Chimes.prototype.getService = function (name) {
+  Chimes.prototype.getAPIService = function (name) {
     if (!this.user) {
       return null;
     }
 
     return this.user.createService(name);
-  };
-
-  Chimes.prototype.getServerConnection = function () {
-    return this.connection;
   };
 
   return Chimes;
