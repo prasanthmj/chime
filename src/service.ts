@@ -24,7 +24,6 @@ export default class Service implements RemoteConnection
                     Promise.reject(new Error("Failed logging in ") )
                 }
                 
-                console.log("service -> axios request ...")
                 opts = { headers:{Authorization: `Bearer ${token}` } }                
             }
             
