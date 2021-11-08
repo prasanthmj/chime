@@ -5116,7 +5116,10 @@ function throttleAdapterEnhancer(adapter, options) {
 /** @class */
 function () {
   function Connection(api_url) {
-    this.api_url = api_url;
+    this.api_url = api_url; //The current setup only prevents frequent request to the same end point
+    // This works for now.
+    //To add traditional caching, use cacheAdapterEnhancer as well
+
     this.http = axios$1.create({
       adapter: throttleAdapterEnhancer(axios$1.defaults.adapter, {
         threshold: 3 * 1000
@@ -5239,6 +5242,7 @@ function () {
       email: "",
       avatar_url: "",
       email_confirmed: false,
+      paid_user: false,
       endpoints: {}
     };
     this.processTokenResponse(token);
@@ -5299,8 +5303,6 @@ function () {
       var ExpiryMargin;
       return __generator(this, function (_a) {
         ExpiryMargin = 60 * 1000;
-        console.log("getJWTAccessToken  expires at ", this.token.expires_at);
-        console.log("diff  ", this.token.expires_at - ExpiryMargin);
 
         if (this.token.expires_at - ExpiryMargin < Date.now()) {
           return [2
@@ -5588,7 +5590,6 @@ function () {
 
   Object.defineProperty(Chimes.prototype, "loggedIn", {
     get: function get() {
-      console.log("loggedIn check. User ", this.user);
       return this.user ? true : false;
     },
     enumerable: false,

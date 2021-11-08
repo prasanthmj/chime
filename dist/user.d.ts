@@ -18,6 +18,7 @@ export declare type UserInfo = {
     email: string;
     avatar_url: string;
     email_confirmed: boolean;
+    paid_user: boolean;
     endpoints: ServiceEndPoints;
 };
 export default class User implements RemoteConnection {
