@@ -1,7 +1,7 @@
 {
   "name": "@simfatic/chimes",
   "version": "0.1.8",
-  "description": "Form Data validation library",
+  "description": "Authentication library",
   "main": "dist/chimes.cjs.js",
   "module": "dist/chimes.esm.js",
   "unpkg": "dist/chimes.min.js",

@@ -25,6 +25,7 @@ export type UserInfo ={
     email: string,
     avatar_url: string,
     email_confirmed: boolean,
+    paid_user: boolean,
     endpoints: ServiceEndPoints
 }
 
@@ -37,7 +38,7 @@ type UserData={
 
 export default class User implements RemoteConnection
 {
-    public info:UserInfo={id:"", first_name:"", last_name:"", email:"", avatar_url:"", email_confirmed:false, endpoints:{}}
+    public info:UserInfo={id:"", first_name:"", last_name:"", email:"", avatar_url:"", email_confirmed:false,paid_user: false, endpoints:{}}
     
     constructor(private connection: Connection, 
                 private token:TokenResponse)
